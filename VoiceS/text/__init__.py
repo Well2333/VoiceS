@@ -1,6 +1,5 @@
 from .slice import Slice
 from . import ass
-import logging
 
 from typing import Literal
 
@@ -15,4 +14,4 @@ def load_text(text: str, text_type: support_type):
         else:
             raise NotImplementedError
     except Exception as e:
-        logging.exception(e)
+        print(e)

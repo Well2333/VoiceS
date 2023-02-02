@@ -20,7 +20,7 @@ class Slice:
     @classmethod
     def load(cls, start: Union[int, float], end: Union[int, float], lyrics_text: str):
         s = Slice()
-
+        excp = []
         # check slice duration
         dur = end - start
         if dur < config.Slice_warning_min_sec or dur > config.Slice_warning_max_sec:
@@ -30,7 +30,7 @@ class Slice:
         elif (
             dur < config.Slice_recommand_min_sec or dur > config.Slice_recommand_max_sec
         ):
-            s.exception.append(
+            excp.append(
                 f"切片时长过{'长' if dur > config.Slice_recommand_max_sec else '短'}"
             )
         s.start: Union[int, float] = start
@@ -38,15 +38,15 @@ class Slice:
         s.dur: Union[int, float] = dur
 
         # trans text to pinyin
-        excp = []
+        
         lyrics = []
-        for char in pinyin(
+        for i,char in enumerate(pinyin(
             lyrics_text, heteronym=config.pinyin_heteronym_check, style=Style.NORMAL
-        ):
+        )):
             if char == [" "]:
                 continue
             if len(char) > 1:
-                excp.append(f"歌词中出现多音字 {char}")
+                excp.append(f"歌词中出现多音字 {lyrics_text[i]} -> {char}")
             lyrics.append(char[0])
         s.lyrics = " ".join(lyrics)
         s.exception = set(excp)
