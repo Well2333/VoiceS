@@ -1,4 +1,4 @@
-USE_COMMAD_LINE: bool = True
+USE_COMMAD_LINE: bool = False
 
 
 if USE_COMMAD_LINE:  # 命令行运行

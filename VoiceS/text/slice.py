@@ -15,7 +15,7 @@ class Slice:
     """持续时间"""
     lyrics: str
     """歌词拼音"""
-    exception: set[str] = []
+    exception: set[str]
 
     @classmethod
     def load(cls, start: Union[int, float], end: Union[int, float], lyrics_text: str):
