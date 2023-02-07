@@ -2,6 +2,7 @@ from typing import Union, List
 from ..config import config
 
 from pypinyin import pinyin, Style
+from pathlib import Path
 
 
 class Slice:
@@ -13,42 +14,49 @@ class Slice:
     """结束时间"""
     dur: Union[int, float]
     """持续时间"""
-    lyrics: str
-    """歌词拼音"""
-    exception: set[str]
+    lyrics_dict: dict[str, List[str]]
+    """歌词"""
 
-    @classmethod
-    def load(cls, start: Union[int, float], end: Union[int, float], lyrics_text: str):
-        s = Slice()
-        excp = []
+    def __init__(
+        self, start: Union[int, float], end: Union[int, float], lyrics_text: str
+    ):
         # check slice duration
         dur = end - start
-        if dur < config.Slice_warning_min_sec or dur > config.Slice_warning_max_sec:
+        if dur < config.Slice_min_sec or dur > config.Slice_max_sec:
             raise ValueError(
-                f"切片时长 **必须** 在 {config.Slice_warning_min_sec} 至 {config.Slice_warning_max_sec} 秒之间, 而不是为 {dur:.2f} 秒"
+                f"切片时长必须在 {config.Slice_min_sec} 至 {config.Slice_max_sec} 秒之间, 而不是为 {dur:.2f} 秒"
             )
-        elif (
-            dur < config.Slice_recommand_min_sec or dur > config.Slice_recommand_max_sec
-        ):
-            excp.append(
-                f"切片时长过{'长' if dur > config.Slice_recommand_max_sec else '短'}"
-            )
-        s.start: Union[int, float] = start
-        s.end: Union[int, float] = end
-        s.dur: Union[int, float] = dur
 
-        # trans text to pinyin
-        
-        lyrics = []
-        for i,char in enumerate(pinyin(
-            lyrics_text, heteronym=config.pinyin_heteronym_check, style=Style.NORMAL
-        )):
-            if char == [" "]:
+        # init param
+        self.start = start
+        self.end = end
+        self.dur = dur
+        self.lyrics_dict = {}
+
+        for x in lyrics_text:
+            if x in [" "]:
                 continue
-            if len(char) > 1:
-                excp.append(f"歌词中出现多音字 {lyrics_text[i]} -> {char}")
-            lyrics.append(char[0])
-        s.lyrics = " ".join(lyrics)
-        s.exception = set(excp)
+            elif x.isascii():
+                self.lyrics_dict[x] = x
+            else:
+                self.lyrics_dict[x] = pinyin(
+                    x,
+                    heteronym=config.pinyin_heteronym_check,
+                    style=Style.NORMAL,
+                )[0]
 
-        return s
+    def _interactive(self, audio: Path):
+        pass
+
+    def get_lyrics(self, audio: Path):
+        if config.pinyin_interactive_check:
+            return self._interactive(audio), []
+        lys = []
+        excp = []
+        for han in self.lyrics_dict:
+            pin = self.lyrics_dict[han]
+            lys.append(pin[0])
+            if len(pin) > 1:
+                excp.append(f"{han} -> {pin}")
+
+        return " ".join(lys), excp

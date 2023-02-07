@@ -13,7 +13,7 @@ def load(ass: str):
         if not l.startswith("Dialogue: "):
             continue
         i = l[10:].strip().split(",", 9)
-        s = Slice.load(
+        s = Slice(
             start=_time_to_sec(i[1]), end=_time_to_sec(i[2]), lyrics_text=i[-1]
         )
         ls.append(s)
