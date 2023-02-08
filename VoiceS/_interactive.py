@@ -59,7 +59,7 @@ def main_page(slice: Slice, audio: Path):
     else:
         ly: Lyrics = slice.lyrics_ls[int(choice.name.split("-", maxsplit=1)[0])]
         pin = ListPrompt(
-            "您要将 {} 的拼音修改为?",
+            f"您要将 {ly.han} 的拼音修改为?",
             choices=[Choice(pin) for pin in ly.pinyin],
             annotation="使用键盘的 ↑ 和 ↓ 来选择, 按回车确认",
         ).prompt()
