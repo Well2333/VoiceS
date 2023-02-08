@@ -5,6 +5,36 @@ from pypinyin import pinyin, Style
 from pathlib import Path
 
 
+class Lyrics:
+    index: int
+    han: str
+    pinyin: List[str]
+    _choice: int = 0
+    _warning: bool = True
+
+    def __init__(self, index: int, han: str, pinyin: List[str]) -> None:
+        self.index: int = index
+        self.han: str = han
+        self.pinyin: List[str] = pinyin
+        if len(pinyin) == 1:
+            self._warning = False
+
+    def get(self):
+        return self.pinyin[self._choice], self._warning
+
+    def change_by_choice(self, choice: int):
+        if choice < len(self.pinyin):
+            self._choice = choice
+            self._warning = False
+
+    def change_by_pinyin(self, pinyin: str):
+        try:
+            self._choice = self.pinyin.index(pinyin)
+            self._warning = False
+        except ValueError:
+            return
+
+
 class Slice:
     """Slice 对象包含了时间信息与对应歌词，用于切片及生成输出文件"""
 
@@ -14,7 +44,7 @@ class Slice:
     """结束时间"""
     dur: Union[int, float]
     """持续时间"""
-    lyrics_dict: dict[str, List[str]]
+    lyrics_ls: List[Lyrics]
     """歌词"""
 
     def __init__(
@@ -31,32 +61,40 @@ class Slice:
         self.start = start
         self.end = end
         self.dur = dur
-        self.lyrics_dict = {}
-
+        self.lyrics_ls = []
+        i = 0
         for x in lyrics_text:
             if x in [" "]:
                 continue
             elif x.isascii():
-                self.lyrics_dict[x] = x
+                self.lyrics_ls.append(Lyrics(i, x, [x]))
+                i += 1
             else:
-                self.lyrics_dict[x] = pinyin(
-                    x,
-                    heteronym=config.pinyin_heteronym_check,
-                    style=Style.NORMAL,
-                )[0]
-
-    def _interactive(self, audio: Path):
-        pass
+                self.lyrics_ls.append(
+                    Lyrics(
+                        i,
+                        x,
+                        pinyin(
+                            x,
+                            heteronym=config.pinyin_heteronym_check,
+                            style=Style.NORMAL,
+                        )[0],
+                    )
+                )
+                i += 1
 
     def get_lyrics(self, audio: Path):
         if config.pinyin_interactive_check:
-            return self._interactive(audio), []
+            from .._interactive import main_page
+
+            main_page(self, audio)
+
         lys = []
         excp = []
-        for han in self.lyrics_dict:
-            pin = self.lyrics_dict[han]
-            lys.append(pin[0])
-            if len(pin) > 1:
-                excp.append(f"{han} -> {pin}")
+        for lyrics in self.lyrics_ls:
+            pinyin, warning = lyrics.get()
+            lys.append(pinyin)
+            if warning:
+                excp.append(f"{lyrics.han} -> {lyrics.pinyin}")
 
         return " ".join(lys), excp

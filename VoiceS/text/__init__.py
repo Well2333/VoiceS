@@ -1,4 +1,4 @@
-from .slice import Slice
+from .slice import Slice,Lyrics
 from . import ass
 
 from typing import Literal

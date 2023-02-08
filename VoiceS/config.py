@@ -21,7 +21,7 @@ config.pinyin_interactive_check = (
 )
 config.pinyin_interactive_play_audio = (
     bool(input("是否在 **交互式** 多音字检查中开启音频播放:"))
-    if config.pinyin_interactive_play_audio
+    if config.pinyin_heteronym_check
     else False
 )
 
