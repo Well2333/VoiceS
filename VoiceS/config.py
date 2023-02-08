@@ -1,3 +1,6 @@
+from pathlib import Path
+import os
+
 class Config:
 
     """Slice Setting"""
@@ -9,6 +12,9 @@ class Config:
     pinyin_heteronym_check: bool = True
     pinyin_interactive_check: bool = False
     pinyin_interactive_play_audio: bool = False
+    
+    """tracker setting"""
+    tracker_path: Path = Path("tracker.json")
 
 
 config: Config = Config()
@@ -21,7 +27,7 @@ config.pinyin_interactive_check = (
 )
 config.pinyin_interactive_play_audio = (
     bool(input("是否在 **交互式** 多音字检查中开启音频播放:"))
-    if config.pinyin_heteronym_check
+    if config.pinyin_interactive_check
     else False
 )
 

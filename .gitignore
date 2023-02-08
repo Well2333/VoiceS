@@ -133,3 +133,5 @@ data/
 excp_file.txt
 
 main.py
+
+tracker.json
