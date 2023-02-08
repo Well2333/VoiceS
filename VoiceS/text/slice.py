@@ -63,13 +63,22 @@ class Slice:
         self.dur = dur
         self.lyrics_ls = []
         i = 0
+        is_ascii = False
         for x in lyrics_text:
             if x in [" "]:
-                continue
+                is_ascii = False
             elif x.isascii():
-                self.lyrics_ls.append(Lyrics(i, x, [x]))
-                i += 1
+                if not is_ascii:
+                    self.lyrics_ls.append(Lyrics(i, x, [x]))
+                    i += 1
+                    is_ascii = True
+                else:
+                    ly = self.lyrics_ls.pop()
+                    ly.han += x
+                    ly.pinyin = [ly.han]
+                    self.lyrics_ls.append(ly)
             else:
+                is_ascii = False
                 self.lyrics_ls.append(
                     Lyrics(
                         i,
