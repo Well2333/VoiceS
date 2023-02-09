@@ -30,7 +30,7 @@ tracker_local: dict[str, dict[str, int]] = {}
 
 
 def get_freq(word: str, pinyin: List[str]):
-    w_ = tracker.get(word)
+    w_ = tracker.get(word) or {}
     w = tracker_local.get(word) or w_
     
     total = sum(w_.values())
