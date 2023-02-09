@@ -15,9 +15,9 @@ class LyricsChoice(Choice):
 
     @classmethod
     def create(cls, lyrics: Lyrics):
-        lyrics.pinyin, _ = get_freq(lyrics.han, lyrics.pinyin)
+        lyrics.pinyin, s = get_freq(lyrics.han, lyrics.pinyin)
         lc = cls(
-            f"{lyrics.index}-修改: {lyrics.han}({lyrics.pinyin[lyrics._choice]}) => {' '.join(lyrics.pinyin)}"
+            f"[{s}]{lyrics.index:>2}: {lyrics.han}({lyrics.pinyin[lyrics._choice]}) => {' '.join(lyrics.pinyin)}"
         )
         lc.lyrics = lyrics
         return lc
@@ -67,9 +67,9 @@ def main_page(slice: Slice, audio: Path):
     ]
     # append choices
     choices.extend(LyricsChoice.create(ly) for ly in slice.lyrics_ls if ly._warning)
-    choices.append(Choice("[🥳]完成编辑"))
+    choices.append(Choice("[🎉]完成编辑"))
     choice = ListPrompt(
-        "请选择您要进行的操作:", choices=choices, annotation="使用键盘的 ↑ 和 ↓ 来选择, 按回车确认"
+        "请选择您要进行的操作:", choices=choices, annotation="使用 ↑ ↓ 选择, 回车确认 ⚪数据不足 🔴重点校对 🟡优先校对 🟢一般校对"
     ).prompt()
     # finish
     if choices[-1] == choice:
