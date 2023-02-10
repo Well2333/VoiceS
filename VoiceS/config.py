@@ -6,7 +6,7 @@ class Config:
     """Slice Setting"""
 
     Slice_min_sec: int = 2
-    Slice_max_sec: int = 20
+    Slice_max_sec: int = 15
 
     """pinyin setting"""
     pinyin_heteronym_check: bool = True
