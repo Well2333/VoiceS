@@ -1,0 +1,38 @@
+[tool]
+[tool.pdm]
+
+[project]
+name = "voices"
+version = "1.0.0a4"
+description = "根据 ASS 文件将多种类的音频文件切片为指定格式的文件，并生成对应的 .lab 文件"
+authors = [
+    {name = "Well404", email = "well_404@outlook.com"},
+]
+dependencies = [
+    "pypinyin>=0.48.0",
+    "soundfile>=0.12.1",
+    "PyAudio>=0.2.13",
+    "noneprompt>=0.1.7",
+    "click>=8.1.3",
+    "numpy>=1.24.2",
+]
+requires-python = ">=3.8"
+readme = "README.md"
+license = {text = "MIT"}
+
+[tool.pdm.dev-dependencies]
+dev = [
+    "black>=23.1.0"
+]
+
+[build-system]
+requires = ["pdm-pep517>=1.0"]
+build-backend = "pdm.pep517.api"
+
+[project.urls]
+homepage = "https://github.com/well2333/VoiceS"
+repository = "https://github.com/well2333/VoiceS"
+documentation = "https://github.com/Well2333/VoiceS/blob/main/README.md"
+
+[project.scripts]
+voices = "voices.__main__:main"

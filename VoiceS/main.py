@@ -14,7 +14,7 @@ def main(src: Path = Path("data"), des: Path = Path("data/output")):
     excp = []
     st = time.time()
     des.mkdir(0o755, parents=True, exist_ok=True)
-    filels = sorted(set(src.rglob("*.ass")),key=lambda f: f.name,reverse=True)
+    filels = sorted(set(src.rglob("*.ass")),key=lambda f: f.name)
     for i, ass_file in enumerate(filels):
         print(f"[{i:3}/{len(filels):3}]{int(time.time()-st):5}s: 正在处理 {ass_file}")
         # check Chinese char

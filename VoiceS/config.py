@@ -79,7 +79,7 @@ class Config:
             try:
                 min_sec = int(
                     InputPrompt(
-                        "请输入 <切片最短时长>, 取值范围为 [0, 5] 秒:", default_text="5"
+                        "请输入 <切片最短时长>, 取值范围为 [0, 5] 秒:", default_text="0"
                     ).prompt()
                 )
                 if 0 <= min_sec <= 5:
@@ -101,10 +101,12 @@ class Config:
             except Exception as e:
                 secho(f"输入值无法解析, 请重新输入: {e}")
 
-        self.pinyin_heteronym_check = ConfirmPrompt("是否开启多音字检查?").prompt()
+        self.pinyin_heteronym_check = ConfirmPrompt(
+            "是否开启多音字检查?", default_choice=True
+        ).prompt()
         if self.pinyin_heteronym_check:
             self.pinyin_interactive_check = ConfirmPrompt(
-                "是否开启 **交互式** 多音字检查?"
+                "是否开启 **交互式** 多音字检查?", default_choice=True
             ).prompt()
 
         self.tracker_download = InputPrompt(
@@ -114,7 +116,9 @@ class Config:
             "请输入 <tracker.json 保存路径>?", default_text=self.tracker_path
         ).prompt()
 
-        self.skip_exist_slice = ConfirmPrompt("是否跳过已存在的切片?").prompt()
+        self.skip_exist_slice = ConfirmPrompt(
+            "是否跳过已存在的切片?", default_choice=True
+        ).prompt()
 
     def load(self, path: Path = None):
         if not path:

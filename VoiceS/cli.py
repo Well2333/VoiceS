@@ -1,38 +1,30 @@
-import argparse
-import sys
+import click
 from pathlib import Path
 
-parser = argparse.ArgumentParser(
-    description="根据 ASS 文件将多种类的音频文件切片为指定格式的文件，并生成对应的 .lab 文件"
-)
-parser.add_argument("src", type=Path, help="需要处理的文件夹（data文件夹）")
-parser.add_argument("des", type=Path, help="处理后文件的输出的文件夹")
-args = parser.parse_args()
 
-src: Path = args.src
-des: Path = args.des
+@click.command(help="运行 VoiceS")
+@click.option("-i", "--input", prompt="请输入需要处理的文件夹的路径", help="需要处理的文件夹")
+@click.option("-o", "--output", prompt="请输入处理后输出的文件夹的路径", help="处理后输出的文件夹")
+@click.option("-f", "--force", is_flag=True, help="强制执行")
+@click.help_option("-h", "--help", help="显示帮助信息")
+def run(input: str, output: str, force: bool):
+    src = Path(input)
+    des = Path(output)
+    if not src.exists():
+        click.secho(f"源路径 {src.absolute()} 不存在！", fg="bright_red")
+        return
+    elif not src.is_dir():
+        click.secho(f"源路径 {src.absolute()} 不是文件夹！", fg="bright_red")
+        return
+    elif not len(list(src.iterdir())):
+        click.secho(f"源路径 {src.absolute()} 是空文件夹！", fg="bright_red")
+        return
 
+    des.mkdir(0o755, True, True)
+    if len(list(des.iterdir())) and not force:
+        click.secho(f"目标路径 {des.absolute()} 不是空文件夹！请添加 --force 或 -f 跳过此检查")
+        return
 
-if not src.exists():
-    print(f"源路径 {src.absolute()} 不存在！")
-    input("按任意键退出程序...")
-    sys.exit(0)
-elif not src.is_dir():
-    print(f"源路径 {src.absolute()} 不是文件夹！")
-    input("按任意键退出程序...")
-    sys.exit(0)
-elif not len(list(src.iterdir())):
-    print(f"源路径 {src.absolute()} 是空文件夹！")
-    input("按任意键退出程序...")
-    sys.exit(0)
+    from .main import main
 
-des.mkdir(0o755,True,True)
-if len(list(des.iterdir())):
-    print(f"目标路径 {des.absolute()} 不是空文件夹！")
-    print("程序仍可继续执行，但其中的文件可能会被覆盖或出现未知的错误。")
-    input("若继续执行请回车, 若退出请按 Ctrl+C...")
-
-from .main import main
-
-main(src,des)
-
+    main(src, des)
