@@ -91,9 +91,10 @@ class Slice:
                     )
                 )
                 i += 1
+    
 
     def get_lyrics(self, audio: Path):
-        if config.pinyin_interactive_check:
+        if config.pinyin_interactive_check and any(lyrics._warning for lyrics in self.lyrics_ls):
             from .._interactive import main_page
 
             main_page(self, audio)
