@@ -52,9 +52,9 @@ class Slice:
     ):
         # check slice duration
         dur = end - start
-        if dur < config.Slice_min_sec or dur > config.Slice_max_sec:
+        if dur < config.slice_min_sec or dur > config.slice_max_sec:
             raise ValueError(
-                f"切片时长必须在 {config.Slice_min_sec} 至 {config.Slice_max_sec} 秒之间, 而不是为 {dur:.2f} 秒"
+                f"切片时长必须在 {config.slice_min_sec} 至 {config.slice_max_sec} 秒之间, 而不是为 {dur:.2f} 秒"
             )
 
         # init param

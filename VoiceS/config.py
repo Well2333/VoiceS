@@ -1,5 +1,5 @@
 from pathlib import Path
-from noneprompt import ListPrompt, Choice, InputPrompt
+from noneprompt import ListPrompt, Choice, InputPrompt, ConfirmPrompt
 from click import secho
 import json
 
@@ -21,6 +21,9 @@ class Config:
     tracker_download: str = "https://ali.well404.top/files/tracker.json"
     tracker_path: str = str(Path("tracker.json"))
 
+    """skip setting"""
+    skip_exist_slice: bool = True
+
     def __dir__(self):
         return [
             "slice_min_sec",
@@ -29,6 +32,7 @@ class Config:
             "pinyin_interactive_check",
             "tracker_download",
             "tracker_path",
+            "skip_exist_slice",
         ]
 
     def __init__(self) -> None:
@@ -71,7 +75,46 @@ class Config:
                 break
 
     def modify(self):
-        pass
+        while True:
+            try:
+                min_sec = int(
+                    InputPrompt(
+                        "请输入 <切片最短时长>, 取值范围为 [0, 5] 秒:", default_text="5"
+                    ).prompt()
+                )
+                if 0 <= min_sec <= 5:
+                    self.slice_min_sec = min_sec
+                    break
+            except Exception as e:
+                secho(f"输入值无法解析, 请重新输入: {e}")
+
+        while True:
+            try:
+                max_sec = int(
+                    InputPrompt(
+                        "请输入 <切片最长时长>, 取值范围为 (5, 20] 秒:", default_text="15"
+                    ).prompt()
+                )
+                if 5 < max_sec <= 20:
+                    self.slice_max_sec = max_sec
+                    break
+            except Exception as e:
+                secho(f"输入值无法解析, 请重新输入: {e}")
+
+        self.pinyin_heteronym_check = ConfirmPrompt("是否开启多音字检查?").prompt()
+        if self.pinyin_heteronym_check:
+            self.pinyin_interactive_check = ConfirmPrompt(
+                "是否开启 **交互式** 多音字检查?"
+            ).prompt()
+
+        self.tracker_download = InputPrompt(
+            "请输入 <tracker.json 在线地址>(若不想在线获取则留空)?", default_text=self.tracker_download
+        ).prompt()
+        self.tracker_path = InputPrompt(
+            "请输入 <tracker.json 保存路径>?", default_text=self.tracker_path
+        ).prompt()
+
+        self.skip_exist_slice = ConfirmPrompt("是否跳过已存在的切片?").prompt()
 
     def load(self, path: Path = None):
         if not path:
@@ -92,6 +135,7 @@ class Config:
         for key in cfg:
             self.__setattr__(key, cfg[key])
 
+
 secho(
     """
  _    __        _             _____
@@ -103,5 +147,3 @@ secho(
     fg="bright_blue",
 )
 config: Config = Config()
-
-
