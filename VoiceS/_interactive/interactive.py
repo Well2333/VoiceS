@@ -5,6 +5,10 @@ from pathlib import Path
 from click import secho
 from noneprompt import Choice, ListPrompt
 
+import wave
+
+import pyaudio
+
 from ..config import config
 from ..text import Lyrics, Slice
 from .tracker import get_freq, log_freq
@@ -36,27 +40,21 @@ class LyricsChoice(Choice):
 
 
 def play_audio(audio: Path):
-    if not config.pinyin_interactive_play_audio:
-        secho("未启用播放音频的功能!", fg="bright_red")
-        secho("未启用播放音频的功能!", fg="bright_red")
-        secho("未启用播放音频的功能!", fg="bright_red")
-        return
-    import wave
-
-    import pyaudio
-
-    with wave.open(str(audio.absolute()), "rb") as wf:
-        p = pyaudio.PyAudio()
-        stream = p.open(
-            format=p.get_format_from_width(wf.getsampwidth()),
-            channels=wf.getnchannels(),
-            rate=wf.getframerate(),
-            output=True,
-        )
-        while len(data := wf.readframes(1024)):
-            stream.write(data)
-        stream.close()
-        p.terminate()
+    try:
+        with wave.open(str(audio.absolute()), "rb") as wf:
+            p = pyaudio.PyAudio()
+            stream = p.open(
+                format=p.get_format_from_width(wf.getsampwidth()),
+                channels=wf.getnchannels(),
+                rate=wf.getframerate(),
+                output=True,
+            )
+            while len(data := wf.readframes(1024)):
+                stream.write(data)
+            stream.close()
+            p.terminate()
+    except Exception as e:
+        raise RuntimeError("此设备无法正常播放音频") from e
 
 
 def main_page(slice: Slice, audio: Path):

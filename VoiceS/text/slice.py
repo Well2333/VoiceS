@@ -52,9 +52,9 @@ class Slice:
     ):
         # check slice duration
         dur = end - start
-        if dur < config.Slice_min_sec or dur > config.Slice_max_sec:
+        if dur < config.slice_min_sec or dur > config.slice_max_sec:
             raise ValueError(
-                f"切片时长必须在 {config.Slice_min_sec} 至 {config.Slice_max_sec} 秒之间, 而不是为 {dur:.2f} 秒"
+                f"切片时长必须在 {config.slice_min_sec} 至 {config.slice_max_sec} 秒之间, 而不是为 {dur:.2f} 秒, 将跳过此切片"
             )
 
         # init param
@@ -91,9 +91,10 @@ class Slice:
                     )
                 )
                 i += 1
+    
 
     def get_lyrics(self, audio: Path):
-        if config.pinyin_interactive_check:
+        if config.pinyin_interactive_check and any(lyrics._warning for lyrics in self.lyrics_ls):
             from .._interactive import main_page
 
             main_page(self, audio)

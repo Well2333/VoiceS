@@ -14,7 +14,8 @@ def lab(audio: Path, slices: List[Slice], des: Path):
             # write .wav
             s = int(slice.start * f.samplerate)
             e = int(slice.end * f.samplerate)
-            des.joinpath(f"{audio.stem}_{n:02d}.wav")
+            if des.joinpath(f"{audio.stem}_{n:02d}.lab").exists() and config.skip_exist_slice:
+                continue
             sf.write(
                 des.joinpath(f"{audio.stem}_{n:02d}.wav"),
                 data[s:e],
