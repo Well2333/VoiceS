@@ -1,3 +1,3 @@
-from voices.cli import run
+from voices.cli import main
 
-run()
+main()

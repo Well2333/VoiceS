@@ -3,7 +3,7 @@ import time
 from pathlib import Path
 
 from click import secho
-from noneprompt import Choice, ListPrompt
+from noneprompt import Choice, ListPrompt,CancelledError
 
 import wave
 
@@ -66,9 +66,12 @@ def main_page(slice: Slice, audio: Path):
     # append choices
     choices.extend(LyricsChoice.create(ly) for ly in slice.lyrics_ls if ly._warning)
     choices.append(Choice("[🎉]完成编辑"))
-    choice = ListPrompt(
-        "请选择您要进行的操作:", choices=choices, annotation="使用 ↑ ↓ 选择, 回车确认 ⚪数据不足 🔴重点校对 🟡优先校对 🟢一般校对"
-    ).prompt()
+    try:
+        choice = ListPrompt(
+            "请选择您要进行的操作:", choices=choices, annotation="使用 ↑ ↓ 选择, 回车确认 ⚪数据不足 🔴重点校对 🟡优先校对 🟢一般校对"
+        ).prompt()
+    except CancelledError:
+        raise KeyboardInterrupt
     # finish
     if choices[-1] == choice:
         if len(choices) == 2:

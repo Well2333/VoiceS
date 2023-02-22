@@ -13,7 +13,7 @@ if not (TRACKER_PATH.exists() and TRACKER_PATH.is_file()):
     if config.tracker_download:
         secho(
             f"{TRACKER_PATH} 不存在或不为文件! 将尝试从 {config.tracker_download} 下载此文件!",
-            fg="bright_red",
+            fg="bright_yellow",
         )
         import urllib.request
 
@@ -32,11 +32,9 @@ if not (TRACKER_PATH.exists() and TRACKER_PATH.is_file()):
         TRACKER_PATH.write_text("{}", encoding="utf-8")
 
 # tracker 是可以被导入的外置词典, 权重较低
-tracker: dict[str, dict[str, int]] = json.loads(
-    TRACKER_PATH.read_text(encoding="utf-8")
-)
+tracker: dict = json.loads(TRACKER_PATH.read_text(encoding="utf-8"))
 # tracker_local 是仅内存的内置词典, 权重较高, 更能反映当前用户的选择倾向
-tracker_local: dict[str, dict[str, int]] = {}
+tracker_local: dict = {}
 
 
 def get_freq(word: str, pinyin: List[str]):
