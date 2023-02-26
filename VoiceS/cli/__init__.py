@@ -1,6 +1,7 @@
 import click
 
 from .slicer import slicer
+from .tools import uta
 from voices import __version__
 
 
@@ -46,3 +47,4 @@ def main():
 
 
 main.add_command(slicer)
+main.add_command(uta)
