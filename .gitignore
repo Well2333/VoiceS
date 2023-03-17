@@ -141,3 +141,5 @@ config.json
 .pdm.toml
 
 voices_config/
+
+.vscode/

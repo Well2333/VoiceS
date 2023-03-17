@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "voices"
-version = "1.0.0b2"
+version = "1.1.0"
 description = "适用于 diffsinger 的多功能工具集"
 authors = ["Well404 <well_404@outlook.com>"]
 license = "MIT"
