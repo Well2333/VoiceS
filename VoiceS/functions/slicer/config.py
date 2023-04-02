@@ -133,9 +133,6 @@ class Config:
                 "请输入 <tracker.json 保存路径>?", default_text=self.tracker_path
             ).prompt()
 
-            self.skip_exist_slice = ConfirmPrompt(
-                "是否跳过已存在的切片?", default_choice=self.skip_exist_slice
-            ).prompt()
         except CancelledError:
             secho("已终止配置流程! 已修改的部分将会保留!", fg="bright_red")
             return
@@ -170,6 +167,7 @@ class Config:
         except Exception as e:
             secho(f"无法解析配置信息, 请重新输入: {e}", fg="bright_red")
             self.load()
+            return
         for key in cfg:
             self.__setattr__(key, cfg[key])
 

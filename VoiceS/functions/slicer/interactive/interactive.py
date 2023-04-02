@@ -58,7 +58,8 @@ def play_audio(audio: Path):
 
 
 def main_page(slice: Slice, audio: Path):
-    secho(f"===== 切片 <{audio.absolute()}> 中包含多音字 =====", fg="bright_red")
+    # sourcery skip: raise-from-previous-error
+    secho(f"===== 切片 <{audio.absolute()}> 中包含多音字 =====", fg="bright_yellow")
     secho(f"原文: {' '.join([ly.han for ly in slice.lyrics_ls])}")
     choices = [
         Choice("[🎵]播放音频"),
@@ -69,14 +70,14 @@ def main_page(slice: Slice, audio: Path):
     try:
         choice = ListPrompt(
             "请选择您要进行的操作:", choices=choices, annotation="使用 ↑ ↓ 选择, 回车确认 ⚪数据不足 🔴重点校对 🟡优先校对 🟢一般校对"
-        ).prompt()
+        ).prompt() # type: ignore
     except CancelledError:
         raise KeyboardInterrupt
     # finish
     if choices[-1] == choice:
         if len(choices) == 2:
             return
-        for choice in choices[1:-1]:
+        for choice in choices[1:-1]: # type: ignore
             choice: LyricsChoice
             choice.log_freq()
     # play audio

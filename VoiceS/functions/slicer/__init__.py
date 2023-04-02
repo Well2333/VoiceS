@@ -23,7 +23,7 @@ def lab(audio: Path, slices: List[Slice], des: Path):
             e = int(slice.end * f.samplerate)
             if (
                 des.joinpath(f"{audio.stem}_{n:02d}.lab").exists()
-                and config.skip_exist_slice
+                and config.skip_exist_slice # type: ignore
             ):
                 secho(f"切片 {audio.stem}_{n:02d} 已存在, 跳过此切片", fg="black")
                 continue
@@ -43,16 +43,19 @@ def lab(audio: Path, slices: List[Slice], des: Path):
     return excp
 
 
-def main(src: Path, des: Path, subtype: str):
+def main(srcs: List[Path], des: Path, subtype: str):
     excp = []
     st = time.time()
     des.mkdir(0o755, parents=True, exist_ok=True)
-    filels = sorted(set(src.rglob(f"*.{subtype}")), key=lambda f: f.name, reverse=True)
+    filels: List[Path] = sorted(
+        [f for src in srcs for f in src.rglob(f"*.{subtype}")],
+        key=lambda f: f.name,
+        reverse=True,
+    )
+
     for i, ass_file in enumerate(filels):
-        secho(
-            f"[{i:3}/{len(filels):3}]{int(time.time()-st):5}s: 正在处理 {ass_file}",
-            fg="bright_green",
-        )
+        secho(f"[{i+1}/{len(filels)}]{int(time.time()-st):5}s: 正在处理 {ass_file}", fg="bright_green")
+
         # check Chinese char
         if (
             platform == "win32"
@@ -63,15 +66,25 @@ def main(src: Path, des: Path, subtype: str):
             ).prompt()
         ):
             continue
-        ass = load_text(ass_file.read_text(encoding="utf-8"), subtype)
+        
+        # read ass file
+        ass = load_text(ass_file.read_text(encoding="utf-8"), subtype) # type: ignore
         if not ass:
             continue
-        for audio_file in ass_file.parent.rglob(f"{ass_file.stem}.*"):
-            if audio_file.suffix.upper()[1:] not in _formats.keys():
-                continue
-            if e := lab(audio_file, ass, des):
-                excp.append(e)
-            break
+        
+        # find audio file
+        try:
+            audio_file = next(
+                (audio_file for src in srcs for audio_file in src.rglob(f"{ass_file.stem}.*") if audio_file.suffix.upper()[1:] in _formats),
+            )
+        except StopIteration:
+            secho(f"未找到 {ass_file} 对应的音频文件, 跳过此文件", fg="bright_red")
+            continue
+
+        if lab(audio_file, ass, des):
+            excp.append(audio_file)
+
     des.joinpath("exception.json").write_text(
-        json.dumps(excp, ensure_ascii=False), encoding="utf-8"
+        json.dumps([str(e) for e in excp], ensure_ascii=False),
+        encoding="utf-8"
     )

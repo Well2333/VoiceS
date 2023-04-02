@@ -1,4 +1,5 @@
 from pathlib import Path
+from typing import Tuple,List
 
 import click
 from noneprompt import CancelledError
@@ -7,6 +8,7 @@ from noneprompt import CancelledError
 @click.option(
     "-i",
     "--input",
+    multiple=True,
     prompt="请输入需要处理的文件夹的路径",
     help="需要处理的文件夹",
 )
@@ -26,20 +28,23 @@ from noneprompt import CancelledError
     default="ass",
 )
 @click.option("-f", "--force", is_flag=True, help="强制执行")
-def slicer(input: str, output: str, subtype: str, force: bool):
+def slicer(input: Tuple[str], output: str, subtype: str, force: bool):
     # sourcery skip: raise-from-previous-error
-    src = Path(input)
-    des = Path(output)
-    if not src.exists():
-        click.secho(f"源路径 {src.absolute()} 不存在！", fg="bright_red")
-        return
-    elif not src.is_dir():
-        click.secho(f"源路径 {src.absolute()} 不是文件夹！", fg="bright_red")
-        return
-    elif not len(list(src.iterdir())):
-        click.secho(f"源路径 {src.absolute()} 是空文件夹！", fg="bright_red")
-        return
+    srcs:List[Path] = []
+    for src in input:
+        src = Path(src)
+        if not src.exists():
+            click.secho(f"源路径 {src.absolute()} 不存在！", fg="bright_red")
+            return
+        elif not src.is_dir():
+            click.secho(f"源路径 {src.absolute()} 不是文件夹！", fg="bright_red")
+            return
+        elif not len(list(src.iterdir())):
+            click.secho(f"源路径 {src.absolute()} 是空文件夹！", fg="bright_red")
+            return
+        srcs.append(src)
 
+    des = Path(output)
     des.mkdir(0o755, True, True)
     if len(list(des.iterdir())) and not force:
         click.secho(f"目标路径 {des.absolute()} 不是空文件夹！请添加 --force 或 -f 跳过此检查")
@@ -48,6 +53,6 @@ def slicer(input: str, output: str, subtype: str, force: bool):
     try:
         from ..functions.slicer import main as slicer
 
-        slicer(src, des, subtype)
+        slicer(srcs, des, subtype)
     except CancelledError:
         raise KeyboardInterrupt
